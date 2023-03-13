@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="script" href="../script/asterisk.js">
     <title>iTunes API</title>
 </head>
 <body>
@@ -21,10 +22,135 @@
     </header>
     <content>
         <h1>iTunes Search API</h1>
+        
         <h2>Présentation globale</h2>
-        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sit explicabo porro soluta obcaecati id quod voluptatem cum suscipit numquam? Culpa dolorem cum natus repudiandae iste. Velit vel omnis dolor sunt!</p>
-
-
+        <p>L'API de recherche d'Apple permet aux développeurs de site Web de rechercher du contenu présent dans l'iTunes Store ainsi que dans l'Apple Books Store. Il est possible de chercher de nombreuses choses comme les livres, les films, les podcasts, la musique, les clips musicaux ainsi que les livres audio et des émissions télé.</p>
+        <p>L'API de recherche d'Apple est une API Web publique, ouverte à tous et par conséquent accessible via une simple URL. Ce qui fait qu'elle ne nécessite aucun token, aucune authentification. Elle est toutefois dans sa version gratuite limité à 20 usages par minute ce qui permet une requête toutes les 3 secondes.</p>
+        
+        <h2>Utilisation</h2>
+        <p>Pour utiliser l'API de recherche d'Apple, il suffit de faire une requête HTTP GET sur l'URL suivante : <a href="/" target="_blank">https://itunes.apple.com/search?parameterkeyvalue</a>. Il faut par la suite ajouter les arguments obligatoires et si nécessaires les optionnels <i>(Liste des arguments principaux ci-dessous).</i></p>
+        <p>Le lien renverra ensuite un fichier JSON que le développeur pourra traiter pour l'afficher correctement dans son site web.</p>
+        
+        <h2>Arguments</h2>
+        <div class="argument">
+            <h3>N°1 :</h3>
+            <p><b>Argument :</b> term</p>
+            <p><b>Description :</b> La chaîne de texte codée en URL que vous souhaitez rechercher. Par exemple : jack+johnson.</p>
+            <p><b>Requis :</b> Oui</p>
+            <p><b>Valeur :</b> Toute chaîne de texte codée en URL. Remarque : le codage d'URL remplace les espaces par le caractère plus (+) et tous les caractères sauf les suivants sont codés : lettres, chiffres, points (.), tirets (-), traits de soulignement (_) et astérisques (*).</p>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson">https://itunes.apple.com/search?term=jack+johnson</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°2 :</h3>
+            <p><b>Argument :</b> country</p>
+            <p><b>Description :</b> Le code à deux lettres de la région pour laquelle vous souhaitez effectuer la recherche. Par exemple : US.</p>
+            <p><b>Requis :</b> Non</p>
+            <p><b>Valeur :</b> Consulter <a href="http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2">http://en.wikipedia.org/wiki/ISO_3166-1_alpha-2</a> pour une liste des codes de pays ISO.</p>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&country=US">https://itunes.apple.com/search?term=jack+johnson&country=US</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°3 :</h3>
+            <p><b>Argument :</b> media</p>
+            <p><b>Description :</b> Le type de contenu que vous souhaitez rechercher. Par exemple : movie. Par défaut, la recherche est sur tous les types de contenu.</p>
+            <p><b>Requis :</b> Non</p>
+            <p><b>Valeur :</b> movie, podcast, music, musicVideo, audiobook, shortFilm, tvShow, software, ebook, all.</p>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&media=movie">https://itunes.apple.com/search?term=jack+johnson&media=movie</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°4 :</h3>
+            <p><b>Argument :</b> entity</p>
+            <p><b>Description :</b> Le type de résultats que vous souhaitez renvoyer, par rapport au type de média spécifié. Par exemple : movieArtist pour une recherche de type de média de film. La valeur par défaut est l'entité de piste associée au type de média spécifié.</p>
+            <p><b>Requis :</b> Non</p>
+            <table>
+                <thead>
+                  <tr>
+                    <th colspan="10">Valeur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>movie</td>
+                    <td>podcast</td>
+                    <td>music</td>
+                    <td>musicVideo</td>
+                    <td>audiobook</td>
+                    <td>shortFilm</td>
+                    <td>tvShow</td>
+                    <td>software</td>
+                    <td>ebook</td>
+                    <td>all</td>
+                  </tr>
+                  <tr>
+                    <td>movieArtist<br>movie</td>
+                    <td>podcastAuthor<br>podcast</td>
+                    <td>musicArtist <br>musicTrack <br>album <br>musicVideo <br>mix<br>song</td>
+                    <td>musicArtist<br>musicVideo</td>
+                    <td>audiobookAuthor<br>audiobook</td>
+                    <td>shortFilmArtist<br>shortFilm</td>
+                    <td>tvEpisode<br>tvSeason</td>
+                    <td>software<br>iPadSoftware<br>macSoftware</td>
+                    <td>ebook</td>
+                    <td>movie<br>album<br>allArtist<br>podcast<br>musicVideo<br>mix<br>audiobook<br>tvSeason<br>allTrack</td>
+                  </tr>
+                </tbody>
+            </table>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&entity=movieArtist">https://itunes.apple.com/search?term=jack+johnson&entity=movieArtist</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°5 :</h3>
+            <p><b>Argument :</b> attribute</p>
+            <p><b>Description :</b> L'attribut que vous souhaitez rechercher dans les magasins, par rapport au type de média spécifié. Par exemple, si vous souhaitez rechercher un artiste par son nom, spécifiez entity=allArtist&attribute=allArtistTerm. Dans cet exemple, si vous recherchez term=maroon, iTunes renvoie "Maroon 5" dans les résultats de la recherche, au lieu de tous les artistes qui ont déjà enregistré une chanson avec le mot "maroon" dans le titre.
+                La valeur par défaut est tous les attributs associés au type de média spécifié.</p>
+            <p><b>Requis :</b> Non</p>
+            <table>
+                <thead>
+                  <tr>
+                    <th colspan="9">Valeur</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>movie</td>
+                    <td>podcast</td>
+                    <td>music</td>
+                    <td>musicVideo</td>
+                    <td>audiobook</td>
+                    <td>shortFilm</td>
+                    <td>tvShow</td>
+                    <td>software</td>
+                    <td>all</td>
+                  </tr>
+                  <tr>
+                    <td>actorTerm<br>genreIndex<br>artistTerm<br>shortFilmTerm<br>producerTerm<br>ratingTerm<br>directorTerm<br>releaseYearTerm<br>featureFilmTerm<br>movieArtistTerm<br>movieTerm<br>ratingIndex<br>descriptionTerm</td>
+                    <td>titleTerm<br>languageTerm<br>authorTerm<br>genreIndex<br>artistTerm<br>ratingIndex<br>keywordsTerm<br>descriptionTerm</td>
+                    <td>mixTerm<br>genreIndex<br>artistTerm<br>composerTerm<br>albumTerm<br>ratingIndex<br>songTerm</td>
+                    <td>genreIndex<br>artistTerm<br>albumTerm<br>ratingIndex<br>songTerm</td>
+                    <td>titleTerm<br>authorTerm<br>genreIndex<br>ratingIndex</td>
+                    <td>genreIndex <br>shortFilmTerm<br>ratingIndex<br>descriptionTerm</td>
+                    <td>genreIndex<br>tvEpisodeTerm<br>showTerm<br>tvSeasonTerm<br>ratingIndex<br>descriptionTerm</td>
+                    <td>softwareDeveloper</td>
+                    <td>actorTerm<br>languageTerm<br>allArtistTerm<br>tvEpisodeTerm<br>shortFilmTerm<br>directorTerm<br>releaseYearTerm<br>titleTerm<br>featureFilmTerm<br>ratingIndex<br>keywordsTerm<br>descriptionTerm<br>authorTerm<br>genreIndex<br>mixTerm<br>allTrackTerm<br>artistTerm<br>composerTerm<br>tvSeasonTerm<br>producerTerm<br>ratingTerm<br>songTerm<br>movieArtistTerm<br>showTerm<br>movieTerm<br>albumTerm</td>
+                  </tr>
+                </tbody>
+            </table>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&attribute=allArtistTerm">https://itunes.apple.com/search?term=jack+johnson&attribute=allArtistTerm</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°6 :</h3>
+            <p><b>Argument :</b> limit</p>
+            <p><b>Description :</b> Le nombre de résultats que vous souhaitez que l'API renvoie. La valeur par défaut est 50 et la valeur maximale est 200.</p>
+            <p><b>Requis :</b> Non</p>
+            <p><b>Valeur :</b> Un nombre entre 1 et 200</p>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&limit=10">https://itunes.apple.com/search?term=jack+johnson&limit=10</a></p>
+        </div>
+        <div class="argument">
+            <h3>N°7 :</h3>
+            <p><b>Argument :</b> explicit</p>
+            <p><b>Description :</b> Le contenu explicite que vous souhaitez inclure dans les résultats. La valeur par défaut est Yes.</p>
+            <p><b>Requis :</b> Non</p>
+            <p><b>Valeur :</b> Yes ou No</p>
+            <p><b>Exemple :</b> <a href="https://itunes.apple.com/search?term=jack+johnson&explicit=No">https://itunes.apple.com/search?term=jack+johnson&explicit=No</a></p>
+        </div>
     </content>
     <footer>
         <p>© 2023 - Itunes API</p>
