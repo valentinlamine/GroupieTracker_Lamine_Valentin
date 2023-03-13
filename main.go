@@ -2,11 +2,30 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
 
 func main() {
+	fmt.Println("Server started on port 80 : http://localhost")
+	//Chargement des fichiers CSS
+	css := http.FileServer(http.Dir("css"))
+	http.Handle("/css/", http.StripPrefix("/css/", css))
+	//Chargement des ASSETS
+	assets := http.FileServer(http.Dir("assets"))
+	http.Handle("/css/", http.StripPrefix("/assets/", assets))
+	//Gestion des templates
+	http.HandleFunc("/", IndexHandler)
+	http.ListenAndServe(":80", nil)
+}
+
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	t, _ := template.ParseFiles("templates/index.html")
+	t.Execute(w, nil)
+}
+
+func API_TEST() {
 	url := "https://randomuser.me/api/"
 
 	req, _ := http.NewRequest("GET", url, nil)
