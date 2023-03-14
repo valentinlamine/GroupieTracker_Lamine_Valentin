@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="script" href="../script/asterisk.js">
+    <title>iTunes API</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="https://performance-partners.apple.com/search-api">
+                <img src="../assets/images/icon-apple.svg" alt="logo apple">
+                <h1>iTunes API</h1>
+            </a>
+        </div>
+        <nav>
+            <a href="/">Présentation</a>
+            <a href="/search">Recherche</a>
+            <a href="/">Top 10</a>
+        </nav>
+    </header>
+    <content>
+        <form action="/search" class="search_bar">
+            <input type="text" autofocus class="search_input" name="search" placeholder="Rechercher un artiste, un album, une chanson...">
+            <div class="search_icons">
+                <img src="../assets/images/rod.svg" alt="rod" class="rod">
+                <button type="submit" class="search_button">
+                    <img src="../assets/images/search.svg" alt="search" class="search_button_icon">
+                </button>
+            </div>
+        </form>
+        <div class="cards">
+            {{range .}}
+            <div class="item">
+                <img src="../assets/images/default-image.jpg" alt="song preview">
+                <div class = "bottom-item">
+                    <div class="info">
+                        <div class="firstgroup">
+                            <p class="name">{{.Brand}}</p>
+                            <p class="km">{{.Kilometers}} KM</p>
+                        </div>
+                        <p class="price">{{.Price}} €</p>
+                    </div>
+                    <div class="details" onclick="openPopUp(this)">
+                        <p>Voir plus de détails</p>
+                    </div>
+                </div>
+            </div>
+            <div class="pop-up-blur">
+                <div class="pop-up">
+                    <img src="../assets/images/default-image.jpg" alt="song preview">
+                    <div class="bottom-pop-up">
+                        <div class="main-info-pop-up">
+                            <div class="first-line">
+                                <h1>{{.Brand}}</h1>
+                                <h1>{{.Price}} €</h1>
+                            </div>
+                            <div class="second-line">
+                                <p>{{.Kilometers}} KM</p>
+                                <p>{{.Year}}</p>
+                            </div>
+                        </div>
+                        <div class="secondary-info-pop-up">
+                            <p>Moteur : <span class="bolder">{{.Engine}}</span></p>
+                            <p>Vitesse : <span class="bolder">{{.MaxSpeed}} km/h</span></p>
+                        </div>
+                        <input class="pop-up-button" type="submit" value="Fermer" onclick="closePopUp(this)">
+                    </div>
+                </div> 
+            </div>
+            {{end}}
+            <script>
+                function openPopUp(element) {
+                    element = element.parentElement.parentElement;
+                    element.nextElementSibling.style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                }
+
+                function closePopUp(element) {
+                    element = element.parentElement.parentElement.parentElement;
+                    document.body.style.overflow = "auto";
+                    element.style.display = "none";
+                }
+            </script>
+        </div>
+    </content>
+    <footer>
+        <p>© 2023 - Itunes API</p>
+        <p>Créé par <a href="https://github.com/valentinlamine">Valentin LAMINE</a></p>
+    </footer>
+</body>
+</html>

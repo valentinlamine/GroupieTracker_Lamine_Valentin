@@ -14,14 +14,20 @@ func main() {
 	http.Handle("/css/", http.StripPrefix("/css/", css))
 	//Chargement des ASSETS
 	assets := http.FileServer(http.Dir("assets"))
-	http.Handle("/css/", http.StripPrefix("/assets/", assets))
+	http.Handle("/assets/", http.StripPrefix("/assets/", assets))
 	//Gestion des templates
 	http.HandleFunc("/", IndexHandler)
+	http.HandleFunc("/search", SearchHandler)
 	http.ListenAndServe(":80", nil)
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("templates/index.html")
+	t.Execute(w, nil)
+}
+
+func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	t, _ := template.ParseFiles("templates/recherche.html")
 	t.Execute(w, nil)
 }
 
