@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -32,6 +33,7 @@ type Response struct {
 		ArtworkURL100           string    `json:"artworkUrl100"`
 		CollectionPrice         float64   `json:"collectionPrice"`
 		TrackPrice              float64   `json:"trackPrice"`
+		Price                   float64   `json:"price"`
 		ReleaseDate             time.Time `json:"releaseDate"`
 		CollectionExplicitness  string    `json:"collectionExplicitness"`
 		TrackExplicitness       string    `json:"trackExplicitness"`
@@ -49,7 +51,24 @@ type Response struct {
 		ContentAdvisoryRating   string    `json:"contentAdvisoryRating,omitempty"`
 		ShortDescription        string    `json:"shortDescription,omitempty"`
 		LongDescription         string    `json:"longDescription,omitempty"`
+		Description             string    `json:"description,omitempty"`
 		CollectionArtistViewURL string    `json:"collectionArtistViewUrl,omitempty"`
+	} `json:"results"`
+}
+
+type Result struct {
+	ResultCount int `json:"resultCount"`
+	Results     []struct {
+		Type           string    `json:"type"`
+		Title          string    `json:"title"`
+		Artist         string    `json:"artist"`
+		Album          string    `json:"album"`
+		ReleaseDate    time.Time `json:"releaseDate"`
+		Explicit       bool      `json:"explicit"`
+		PreviewImage   string    `json:"previewImage"`
+		PreviewContent string    `json:"previewContent"`
+		Price          float64   `json:"price"`
+		Description    string    `json:"description"`
 	} `json:"results"`
 }
 
@@ -75,16 +94,17 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	t, _ := template.ParseFiles("templates/recherche.html")
 	if r.Method == "POST" {
-		request := API_GET(r.FormValue("search"))
-		t.Execute(w, request.Results)
+		request := API_GET(r.FormValue("search"), r.FormValue("type"))
+		result := API_Handling(request)
+		t.Execute(w, result)
 	} else {
 		t.Execute(w, nil)
 	}
 
 }
 
-func API_GET(search string) Response {
-	url := "https://itunes.apple.com/search?term=" + url.QueryEscape(search)
+func API_GET(search string, media string) Response {
+	url := "https://itunes.apple.com/search?term=" + url.QueryEscape(search) + "&media=" + url.QueryEscape(media) //Création de l'url
 
 	req, _ := http.NewRequest("GET", url, nil) //Création de la requête
 
@@ -100,29 +120,87 @@ func API_GET(search string) Response {
 	var request Response           //Création de la variable temporaire
 	json.Unmarshal(body, &request) //Désérialisation du JSON
 
-	fmt.Println("Requette effectuée avec ", request.ResultCount, " résultats") //Affichage du nombre de résultats
+	fmt.Println("Requette effectuée avec ", request.ResultCount, " résultats de type ", request.Results[0].Kind)
 	fmt.Println(len(request.Results))
 
 	return request //Retourne la variable temporaire
 }
 
-/*
-func API_TEST() {
-	url := "https://randomuser.me/api/"
+func API_Handling(Request Response) Result {
+	//Création de la structure de retour
+	var Result Result
+	Result.ResultCount = Request.ResultCount
+	Result.Results = make([]struct {
+		Type           string    `json:"type"`
+		Title          string    `json:"title"`
+		Artist         string    `json:"artist"`
+		Album          string    `json:"album"`
+		ReleaseDate    time.Time `json:"releaseDate"`
+		Explicit       bool      `json:"explicit"`
+		PreviewImage   string    `json:"previewImage"`
+		PreviewContent string    `json:"previewContent"`
+		Price          float64   `json:"price"`
+		Description    string    `json:"description"`
+	}, len(Request.Results))
 
-	req, _ := http.NewRequest("GET", url, nil)
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-
-	fmt.Println(string(body))
-
-	err := ioutil.WriteFile("test.json", body, 0644)
-	if err != nil {
-		panic(err)
+	//Boucle de traitement des résultats
+	for i := 0; i < len(Request.Results); i++ {
+		switch Request.Results[i].Kind {
+		case "song": //Si le résultat est une chanson
+			Result.Results[i].Type = "song"
+			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Artist = Request.Results[i].ArtistName
+			Result.Results[i].Album = Request.Results[i].CollectionName
+			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
+			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
+			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Price = Request.Results[i].TrackPrice
+			Result.Results[i].Description = "Not description available for song"
+		case "feature-movie": //Si le résultat est un film
+			Result.Results[i].Type = "movie"
+			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Artist = Request.Results[i].ArtistName
+			Result.Results[i].Album = "Not an album"
+			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
+			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
+			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Price = Request.Results[i].TrackPrice
+			Result.Results[i].Description = Request.Results[i].LongDescription
+		case "ebook": //Si le résultat est un livre
+			Result.Results[i].Type = "ebook"
+			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Artist = Request.Results[i].ArtistName
+			Result.Results[i].Album = "Not an album"
+			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
+			Result.Results[i].Explicit = false
+			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
+			Result.Results[i].PreviewContent = Request.Results[i].TrackViewURL
+			Result.Results[i].Price = Request.Results[i].Price
+			Result.Results[i].Description = Request.Results[i].Description
+		case "tv-episode": //Si le résultat est un épisode de série
+			Result.Results[i].Type = "tv-episode"
+			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Artist = Request.Results[i].ArtistName
+			Result.Results[i].Album = Request.Results[i].CollectionName
+			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
+			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
+			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Price = Request.Results[i].TrackPrice
+			Result.Results[i].Description = Request.Results[i].LongDescription
+		default: //Si le résultat n'est pas reconnu
+			fmt.Println("Type non reconnu")
+		}
 	}
-
+	fmt.Println("Requete traitée avec", len(Result.Results), "résultats")
+	return Result
 }
-*/
+
+func PreviewUpscaling(preview string) string {
+	//Input : "https://is4-ssl.mzstatic.com/image/thumb/Music124/v4/f3/ee/b3/f3eeb3ff-ca32-273a-15aa-709bdfa64367/mzi.izwiyqez.jpg/100x100bb.jpg"
+	//Output : "https://is4-ssl.mzstatic.com/image/thumb/Music124/v4/f3/ee/b3/f3eeb3ff-ca32-273a-15aa-709bdfa64367/mzi.izwiyqez.jpg/1000x1000bb.jpg"
+	preview = strings.Replace(preview, "100x100bb", "1000x1000bb", 1)
+	return preview
+}

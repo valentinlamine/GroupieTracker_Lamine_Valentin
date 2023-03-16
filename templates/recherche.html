@@ -21,17 +21,17 @@
             <a href="/">Top 10</a>
         </nav>
     </header>
-    <content>
+    <content id="recherche">
         <form action="/search" class="search_bar" method="post">
             <input type="text" autofocus class="search_input" name="search" placeholder="Rechercher un artiste, un album, une chanson...">
             <select name="type" id="type" class="search_select">
                 <option value="music">Musique</option>
                 <option value="movie">Film</option>
-                <option value="podcast">Podcast</option>
-                <option value="audiobook">Livre audio</option>
-                <option value="shortFilm">Court-métrage</option>
+                <option value="podcast" disabled>Podcast</option>
+                <option value="audiobook" disabled>Livre audio</option>
+                <option value="shortFilm" disabled>Court-métrage</option>
                 <option value="tvShow">Série TV</option>
-                <option value="software">Logiciel</option>
+                <option value="software" disabled>Logiciel</option>
                 <option value="ebook">Livre</option>
             </select>
             <div class="search_icons">
@@ -42,16 +42,16 @@
             </div>
         </form>
         <div class="cards">
-            {{range .}}
+            {{range .Results}}
             <div class="item">
-                <img src="{{.ArtworkURL100}}" alt="song preview">
+                <img src="{{.PreviewImage}}" alt="song preview">
                 <div class = "bottom-item">
                     <div class="info">
                         <div class="firstgroup">
-                            <p class="name">{{.TrackName}}</p>
-                            <p class="km">{{.TrackName}} KM</p>
+                            <p class="name">{{.Title}}</p>
+                            <p class="km">{{.Artist}}</p>
                         </div>
-                        <p class="price">{{.TrackName}} €</p>
+                        <p class="price">{{.Price}} $</p>
                     </div>
                     <div class="details" onclick="openPopUp(this)">
                         <p>Voir plus de détails</p>
@@ -60,21 +60,21 @@
             </div>
             <div class="pop-up-blur">
                 <div class="pop-up">
-                    <img src="/assets/images/default-image.jpg" alt="song preview">
+                    <img src="{{.PreviewImage}}" alt="song preview">
                     <div class="bottom-pop-up">
                         <div class="main-info-pop-up">
                             <div class="first-line">
-                                <h1>{{.TrackName}}</h1>
-                                <h1>{{.TrackName}} €</h1>
+                                <h1>{{.Title}}</h1>
+                                <h1>{{.Price}} $</h1>
                             </div>
                             <div class="second-line">
-                                <p>{{.TrackName}} KM</p>
-                                <p>{{.TrackName}}</p>
+                                <p>{{.Artist}}</p>
+                                <p>{{.ReleaseDate}}</p>
                             </div>
                         </div>
                         <div class="secondary-info-pop-up">
-                            <p>Moteur : <span class="bolder">{{.TrackName}}</span></p>
-                            <p>Vitesse : <span class="bolder">{{.TrackName}} km/h</span></p>
+                            <p>Album : <span class="bolder">{{.Album}}</span></p>
+                            <p>Description : <span class="bolder">{{.Description}}</span></p>
                         </div>
                         <input class="pop-up-button" type="submit" value="Fermer" onclick="closePopUp(this)">
                     </div>
