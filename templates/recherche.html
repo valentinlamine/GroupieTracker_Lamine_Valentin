@@ -74,7 +74,19 @@
                         </div>
                         <div class="secondary-info-pop-up">
                             <p>Album : <span class="bolder">{{.Album}}</span></p>
-                            <p>Description : <span class="bolder">{{.Description}}</span></p>
+                            {{if eq .Type "song"}}
+                                <p>Preview : <span class="bolder"><audio controls><source src="{{.PreviewContent}}" type="audio/mpeg"></audio></span></p>
+                            {{end}}
+                            {{if eq .Type "movie"}}
+                                <p>Preview : <span class="bolder"><video controls><source src="{{.PreviewContent}}" type="video/mp4"></video></span></p>
+                            {{end}}
+                            {{if eq .Type "tvShow"}}
+                                <p>Preview : <span class="bolder"><video controls><source src="{{.PreviewContent}}" type="video/mp4"></video></span></p>
+                            {{end}}
+                            {{if eq .Type "ebook"}}
+                                <p>Preview : <span class="bolder"><a href="{{.PreviewContent}}">Lien</a></span></p>
+                            {{end}}
+                            
                         </div>
                         <input class="pop-up-button" type="submit" value="Fermer" onclick="closePopUp(this)">
                     </div>
