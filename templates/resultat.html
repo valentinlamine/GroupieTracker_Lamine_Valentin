@@ -23,10 +23,11 @@
     </header>
     {{range .Results}}
     <content id="resultat">
+        {{if eq .Type "song"}}
         <audio id="source" src="{{.PreviewContent}}"></audio>
         <div class="album">
             <div class="cover">
-                <img src="{{.PreviewImage}}" alt="album cover">
+                <img src="{{.PreviewImage}}" alt="album cover" onclick="PlayPreview()">
             </div>
             <div class="info">
                 <h1>{{.Album}}</h1>
@@ -34,7 +35,7 @@
                 <h3>{{.ReleaseDate}}</h3>
             </div>
         </div>       
-        <div class="song">
+        <div class="content">
             <div class="first_line">
                 <p class="name">{{.Title}}</p>
                 <button onclick="PlayPreview()"><span>▶</span></button>
@@ -44,6 +45,88 @@
                 <p class="duration">{{.Duration}}</p>
             </div>
         </div>
+        {{else if eq .Type "movie"}}
+        <div class="film">
+            <div class="cover">
+                <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
+            </div>
+        </div>       
+        <div class="content">
+            <div class="first_line">
+                <p class="name">{{.Title}}</p>
+                <button onclick="PlayPreview()"><span>▶</span></button>
+            </div>
+            <div class="second_line">
+                <p class="artist">{{.Artist}}</p>
+                <p class="ReleaseDate">{{.ReleaseDate}}</p>
+            </div>
+            <div class="third_line">
+                <p class="price">{{.Price}} $</p>
+                <p class="duration">{{.Duration}}</p>
+            </div>
+        </div>
+        {{else if eq .Type "tv-episode"}}
+        <div class="film">
+            <div class="cover">
+                <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
+            </div>
+        </div>       
+        <div class="content">
+            <div class="first_line">
+                <p class="name">{{.Title}}</p>
+                <button onclick="PlayPreview()"><span>▶</span></button>
+            </div>
+            <div class="second_line">
+                <p class="artist">{{.Artist}}</p>
+                <p class="ReleaseDate">{{.ReleaseDate}}</p>
+            </div>
+            <div class="third_line">
+                <p class="price">{{.Price}} $</p>
+                <p class="duration">{{.Duration}}</p>
+            </div>
+        </div>
+        {{else if eq .Type "ebook"}}
+        <div class="album">
+            <div class="cover">
+                <img src="{{.PreviewImage}}" alt="album cover" onclick="window.location.href='{{.PreviewContent}}'">
+            </div>
+            <div class="info">
+                <h1>{{.Album}}</h1>
+                <h2>{{.Artist}}</h2>
+                <h3>{{.ReleaseDate}}</h3>
+            </div>
+        </div>       
+        <div class="content">
+            <div class="first_line">
+                <p class="name">{{.Title}}</p>
+                <button onclick="window.location.href='{{.PreviewContent}}'"><span>▶</span></button>
+            </div>
+            <div class="second_line">
+                <p class="price">{{.Price}} $</p>
+                <p class="duration">{{.Duration}}</p>
+            </div>
+        </div>
+        {{else if eq .Type "music-video"}}
+        <div class="film">
+            <div class="cover">
+                <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
+            </div>
+        </div>       
+        <div class="content">
+            <div class="first_line">
+                <p class="name">{{.Title}}</p>
+                <button onclick="PlayPreview()"><span>▶</span></button>
+            </div>
+            <div class="second_line">
+                <p class="artist">{{.Artist}}</p>
+                <p class="ReleaseDate">{{.ReleaseDate}}</p>
+            </div>
+            <div class="third_line">
+                <p class="price">{{.Price}} $</p>
+                <p class="duration">{{.Duration}}</p>
+            </div>
+        </div>
+        {{end}}
     </content>
     {{end}}
     <script>

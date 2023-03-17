@@ -284,12 +284,21 @@ input:focus, .search_input:focus {
     margin: 50px;
 }
 
-.album img {
+.album .cover {
     width: 350px;
     height: 350px;
     border-radius: 20px;
+    overflow: hidden;
+}
+
+.album .cover img {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     border: 1px solid #d2d2d7;
+    object-fit: cover;
+    object-position: center;
 }
 
 .album .info {
@@ -299,42 +308,42 @@ input:focus, .search_input:focus {
     justify-content: center;
 }
 
-.song {
+.content {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin-left: 50px;
     background-color: #eeeeee;
+    margin: 0px 50px;
     padding: 20px;
     border-radius: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
 }
 
-.song .first_line, .song .second_line {
+.content .first_line, .content .second_line, .content .third_line {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.song .first_line {
+.content .first_line {
     margin-bottom: 10px;
 }
 
-.song .name {
+.content .name {
     font-size: 24px;
     font-weight: 500;
     line-height: 29px;
 }
 
-.song .price {
+.content .price {
     color: #0071e3;   
 }
 
-.song .duration {
+.content .duration {
     color: #8E8E8E;
 }
 
-.song button {
+.content button {
     border-radius: 50%;
     padding: 17px;
     cursor: pointer;
@@ -344,9 +353,42 @@ input:focus, .search_input:focus {
     outline: none;
 }
 
-.song button span {
+.content button span {
     position: absolute;
     transform: translate(-50%, -50%);
+}
+/* fin page unique */
+
+/* Affichage page unique film */
+.film {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 50px;
+}
+
+.film .cover {
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.film .cover video {
+    width: 100%;
+    height: 60vh;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border: 1px solid #d2d2d7;
+    object-fit:contain;
+    object-position: center;
+    background-color: #111111;
+}
+
+.film .info {
+    margin-left: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 /* Footer */

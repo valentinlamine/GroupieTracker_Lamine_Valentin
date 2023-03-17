@@ -204,7 +204,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
-			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis, "song")
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = "Not description available for song"
 		case "feature-movie": //Si le résultat est un film
@@ -216,7 +216,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
-			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis, "movie")
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "ebook": //Si le résultat est un livre
@@ -240,7 +240,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
-			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis, "movie")
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "music-video": //Si le résultat est une vidéo musicale
@@ -252,7 +252,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
-			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis, "song")
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		default: //Si le résultat n'est pas reconnu
@@ -284,13 +284,22 @@ func IsExplicit(title, explicit string) string {
 	}
 }
 
-func FormatDuration(duration int) string {
-	//Input : 240853 in milliseconds
-	//Output : 4:03 in minutes:seconds
-	minutes := duration / 60000
-	seconds := (duration % 60000) / 1000
-	if seconds < 10 {
-		return strconv.Itoa(minutes) + ":0" + strconv.Itoa(seconds)
+func FormatDuration(duration int, format string) string {
+	if format == "song" {
+		minutes := duration / 60000
+		seconds := (duration % 60000) / 1000
+		if seconds < 10 {
+			return strconv.Itoa(minutes) + ":0" + strconv.Itoa(seconds)
+		}
+		return strconv.Itoa(minutes) + ":" + strconv.Itoa(seconds)
+	} else if format == "movie" {
+		hours := duration / 3600000
+		minutes := (duration % 3600000) / 60000
+		if minutes < 10 {
+			return strconv.Itoa(hours) + "h0" + strconv.Itoa(minutes) + "m"
+		}
+		return strconv.Itoa(hours) + "h" + strconv.Itoa(minutes) + "m"
+	} else {
+		return "This never happens because i'm perfect"
 	}
-	return strconv.Itoa(minutes) + ":" + strconv.Itoa(seconds)
 }
