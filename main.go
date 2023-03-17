@@ -59,16 +59,15 @@ type Response struct {
 type Result struct {
 	ResultCount int `json:"resultCount"`
 	Results     []struct {
-		Type           string    `json:"type"`
-		Title          string    `json:"title"`
-		Artist         string    `json:"artist"`
-		Album          string    `json:"album"`
-		ReleaseDate    time.Time `json:"releaseDate"`
-		Explicit       bool      `json:"explicit"`
-		PreviewImage   string    `json:"previewImage"`
-		PreviewContent string    `json:"previewContent"`
-		Price          float64   `json:"price"`
-		Description    string    `json:"description"`
+		Type           string  `json:"type"`
+		Title          string  `json:"title"`
+		Artist         string  `json:"artist"`
+		Album          string  `json:"album"`
+		ReleaseDate    string  `json:"releaseDate"`
+		PreviewImage   string  `json:"previewImage"`
+		PreviewContent string  `json:"previewContent"`
+		Price          float64 `json:"price"`
+		Description    string  `json:"description"`
 	} `json:"results"`
 }
 
@@ -104,7 +103,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func API_GET(search string, media string) Response {
-	url := "https://itunes.apple.com/search?term=" + url.QueryEscape(search) + "&media=" + url.QueryEscape(media) //Création de l'url
+	url := "https://itunes.apple.com/search?country=FR&term=" + url.QueryEscape(search) + "&media=" + url.QueryEscape(media) //Création de l'url
 
 	req, _ := http.NewRequest("GET", url, nil) //Création de la requête
 
@@ -120,9 +119,10 @@ func API_GET(search string, media string) Response {
 	var request Response           //Création de la variable temporaire
 	json.Unmarshal(body, &request) //Désérialisation du JSON
 
-	fmt.Println("Requette effectuée avec ", request.ResultCount, " résultats de type ", request.Results[0].Kind)
-	fmt.Println(len(request.Results))
-
+	if request.ResultCount != 0 {
+		fmt.Println("Requette effectuée avec ", request.ResultCount, " résultats de type ", request.Results[0].Kind)
+		fmt.Println(len(request.Results))
+	}
 	return request //Retourne la variable temporaire
 }
 
@@ -131,16 +131,15 @@ func API_Handling(Request Response) Result {
 	var Result Result
 	Result.ResultCount = Request.ResultCount
 	Result.Results = make([]struct {
-		Type           string    `json:"type"`
-		Title          string    `json:"title"`
-		Artist         string    `json:"artist"`
-		Album          string    `json:"album"`
-		ReleaseDate    time.Time `json:"releaseDate"`
-		Explicit       bool      `json:"explicit"`
-		PreviewImage   string    `json:"previewImage"`
-		PreviewContent string    `json:"previewContent"`
-		Price          float64   `json:"price"`
-		Description    string    `json:"description"`
+		Type           string  `json:"type"`
+		Title          string  `json:"title"`
+		Artist         string  `json:"artist"`
+		Album          string  `json:"album"`
+		ReleaseDate    string  `json:"releaseDate"`
+		PreviewImage   string  `json:"previewImage"`
+		PreviewContent string  `json:"previewContent"`
+		Price          float64 `json:"price"`
+		Description    string  `json:"description"`
 	}, len(Request.Results))
 
 	//Boucle de traitement des résultats
@@ -148,22 +147,20 @@ func API_Handling(Request Response) Result {
 		switch Request.Results[i].Kind {
 		case "song": //Si le résultat est une chanson
 			Result.Results[i].Type = "song"
-			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = Request.Results[i].CollectionName
-			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
-			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = "Not description available for song"
 		case "feature-movie": //Si le résultat est un film
 			Result.Results[i].Type = "movie"
-			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = "Not an album"
-			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
-			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
 			Result.Results[i].Price = Request.Results[i].TrackPrice
@@ -173,25 +170,33 @@ func API_Handling(Request Response) Result {
 			Result.Results[i].Title = Request.Results[i].TrackName
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = "Not an album"
-			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
-			Result.Results[i].Explicit = false
+			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].TrackViewURL
 			Result.Results[i].Price = Request.Results[i].Price
 			Result.Results[i].Description = Request.Results[i].Description
 		case "tv-episode": //Si le résultat est un épisode de série
 			Result.Results[i].Type = "tv-episode"
-			Result.Results[i].Title = Request.Results[i].TrackName
+			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = Request.Results[i].CollectionName
-			Result.Results[i].ReleaseDate = Request.Results[i].ReleaseDate
-			Result.Results[i].Explicit = Request.Results[i].TrackExplicitness == "explicit"
+			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
+			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
+			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Price = Request.Results[i].TrackPrice
+			Result.Results[i].Description = Request.Results[i].LongDescription
+		case "music-video": //Si le résultat est une vidéo musicale
+			Result.Results[i].Type = "music-video"
+			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
+			Result.Results[i].Artist = Request.Results[i].ArtistName
+			Result.Results[i].Album = Request.Results[i].CollectionName
+			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		default: //Si le résultat n'est pas reconnu
-			fmt.Println("Type non reconnu")
+			fmt.Println("Type non reconnu : ", Request.Results[i].Kind)
 		}
 	}
 	fmt.Println("Requete traitée avec", len(Result.Results), "résultats")
@@ -203,4 +208,18 @@ func PreviewUpscaling(preview string) string {
 	//Output : "https://is4-ssl.mzstatic.com/image/thumb/Music124/v4/f3/ee/b3/f3eeb3ff-ca32-273a-15aa-709bdfa64367/mzi.izwiyqez.jpg/1000x1000bb.jpg"
 	preview = strings.Replace(preview, "100x100bb", "1000x1000bb", 1)
 	return preview
+}
+
+func FormatDate(date time.Time) string {
+	//Input : 2021-01-01T00:00:00Z
+	//Output : 01/01/2021
+	return date.Format("02/01/2006")
+}
+
+func IsExplicit(title, explicit string) string {
+	if explicit == "explicit" {
+		return title + " ⓔ"
+	} else {
+		return title
+	}
 }
