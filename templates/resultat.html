@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/style.css">
+    <title>iTunes API</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <a href="https://performance-partners.apple.com/search-api">
+                <img src="/assets/images/icon-apple.svg" alt="logo apple">
+                <h1>iTunes API</h1>
+            </a>
+        </div>
+        <nav>
+            <a href="/">Présentation</a>
+            <a href="/search">Recherche</a>
+            <a href="/">Top 10</a>
+        </nav>
+    </header>
+    <content id="resultat">
+        <h1>{{.Title}}</h1>
+        <h2>{{.Artist}}</h2>
+        <div class="details">
+            <div class="left">
+                <img src="{{.PreviewImage}}" alt="song preview">
+            </div>
+            <div class="right">
+                <p class="price">{{.Price}} $</p>
+                <p class="genre">{{.Album}}</p>
+                <p class="release">{{.ReleaseDate}}</p>
+                <p class="description">{{.PreviewContent}}</p>
+            </div>
+    </content>
+    <footer>
+        <p>© 2023 - Itunes API</p>
+        <p>Créé par <a href="https://github.com/valentinlamine">Valentin LAMINE</a></p>
+    </footer>
+</body>
+</html>

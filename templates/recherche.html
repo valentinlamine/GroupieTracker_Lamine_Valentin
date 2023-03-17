@@ -41,6 +41,7 @@
                 </button>
             </div>
         </form>
+        {{if ne .ResultCount 0}}
         <div class="cards">
             {{range .Results}}
             <div class="item">
@@ -49,63 +50,22 @@
                     <div class="info">
                         <div class="firstgroup">
                             <p class="name">{{.Title}}</p>
-                            <p class="km">{{.Artist}}</p>
+                            <p class="artist">{{.Artist}}</p>
                         </div>
                         <p class="price">{{.Price}} $</p>
                     </div>
-                    <div class="details" onclick="openPopUp(this)">
+                    <div class="details" onclick="window.location.href='/search?id={{.Id}}';">
                         <p>Voir plus de détails</p>
                     </div>
                 </div>
             </div>
-            <div class="pop-up-blur">
-                <div class="pop-up">
-                    <img src="{{.PreviewImage}}" alt="song preview">
-                    <div class="bottom-pop-up">
-                        <div class="main-info-pop-up">
-                            <div class="first-line">
-                                <h1>{{.Title}}</h1>
-                                <h1>{{.Price}} $</h1>
-                            </div>
-                            <div class="second-line">
-                                <p>{{.Artist}}</p>
-                                <p>{{.ReleaseDate}}</p>
-                            </div>
-                        </div>
-                        <div class="secondary-info-pop-up">
-                            <p>Album : <span class="bolder">{{.Album}}</span></p>
-                            {{if eq .Type "song"}}
-                                <p>Preview : <span class="bolder"><audio controls><source src="{{.PreviewContent}}" type="audio/mpeg"></audio></span></p>
-                            {{end}}
-                            {{if eq .Type "movie"}}
-                                <p>Preview : <span class="bolder"><video controls><source src="{{.PreviewContent}}" type="video/mp4"></video></span></p>
-                            {{end}}
-                            {{if eq .Type "tvShow"}}
-                                <p>Preview : <span class="bolder"><video controls><source src="{{.PreviewContent}}" type="video/mp4"></video></span></p>
-                            {{end}}
-                            {{if eq .Type "ebook"}}
-                                <p>Preview : <span class="bolder"><a href="{{.PreviewContent}}">Lien</a></span></p>
-                            {{end}}
-                        </div>
-                        <input class="pop-up-button" type="submit" value="Fermer" onclick="closePopUp(this)">
-                    </div>
-                </div> 
-            </div>
             {{end}}
-            <script>
-                function openPopUp(element) {
-                    element = element.parentElement.parentElement;
-                    element.nextElementSibling.style.display = "flex";
-                    document.body.style.overflow = "hidden";
-                }
-
-                function closePopUp(element) {
-                    element = element.parentElement.parentElement.parentElement;
-                    document.body.style.overflow = "auto";
-                    element.style.display = "none";
-                }
-            </script>
         </div>
+        {{end}}
+        {{if eq .ResultCount 0}}
+        <h1>Aucun résultat trouvé</h1>
+        <img src="/assets/images/default-image.jpg" alt="default image for no results" width="50%" height="50%">
+        {{end}}
     </content>
     <footer>
         <p>© 2023 - Itunes API</p>

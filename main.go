@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -60,6 +61,7 @@ type Result struct {
 	ResultCount int `json:"resultCount"`
 	Results     []struct {
 		Type           string  `json:"type"`
+		Id             int     `json:"id"`
 		Title          string  `json:"title"`
 		Artist         string  `json:"artist"`
 		Album          string  `json:"album"`
@@ -91,18 +93,31 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	start := time.Now() //Début du timer
+	fmt.Print("\n")
 	t, _ := template.ParseFiles("templates/recherche.html")
-	if r.Method == "POST" {
-		request := API_GET(r.FormValue("search"), r.FormValue("type"))
-		result := API_Handling(request)
-		t.Execute(w, result)
+	t2, _ := template.ParseFiles("templates/resultat.html")
+	reg := regexp.MustCompile(`\/search\?id=(?P<id>\d+)`)
+	if r.URL.RequestURI() == "/search" {
+		if r.Method == "POST" {
+			request := RequestByName(r.FormValue("search"), r.FormValue("type"))
+			result := RequestHandler(request)
+			t.Execute(w, result)
+		} else {
+			t.Execute(w, nil)
+		}
+	} else if reg.MatchString(r.URL.RequestURI()) { ///search?id=648817663
+		id := reg.FindStringSubmatch(r.URL.RequestURI())[1]
+		request := RequestById(id)
+		result := RequestHandler(request)
+		t2.Execute(w, result)
 	} else {
 		t.Execute(w, nil)
 	}
-
+	fmt.Println("SearchHandler  | Request took", time.Since(start))
 }
 
-func API_GET(search string, media string) Response {
+func RequestByName(search string, media string) Response {
 	url := "https://itunes.apple.com/search?country=FR&term=" + url.QueryEscape(search) + "&media=" + url.QueryEscape(media) //Création de l'url
 
 	req, _ := http.NewRequest("GET", url, nil) //Création de la requête
@@ -120,18 +135,41 @@ func API_GET(search string, media string) Response {
 	json.Unmarshal(body, &request) //Désérialisation du JSON
 
 	if request.ResultCount != 0 {
-		fmt.Println("Requette effectuée avec ", request.ResultCount, " résultats de type ", request.Results[0].Kind)
-		fmt.Println(len(request.Results))
+		fmt.Println("RequestByName  | Sucessful request with", request.ResultCount, "results of type", request.Results[0].Kind)
 	}
 	return request //Retourne la variable temporaire
 }
 
-func API_Handling(Request Response) Result {
+func RequestById(id string) Response {
+	url := "https://itunes.apple.com/lookup?id=" + url.QueryEscape(id) //Création de l'url
+
+	req, _ := http.NewRequest("GET", url, nil) //Création de la requête
+
+	res, err := http.DefaultClient.Do(req) //Envoi de la requête
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer res.Body.Close()          //Fermeture du body
+	body, _ := io.ReadAll(res.Body) //Lecture du body
+
+	var request Response           //Création de la variable temporaire
+	json.Unmarshal(body, &request) //Désérialisation du JSON
+
+	if request.ResultCount != 0 {
+		fmt.Println("RequestById    | Sucessful request with", request.ResultCount, "results of type", request.Results[0].Kind)
+	}
+	return request //Retourne la variable temporaire
+}
+
+func RequestHandler(Request Response) Result {
 	//Création de la structure de retour
 	var Result Result
 	Result.ResultCount = Request.ResultCount
 	Result.Results = make([]struct {
 		Type           string  `json:"type"`
+		Id             int     `json:"id"`
 		Title          string  `json:"title"`
 		Artist         string  `json:"artist"`
 		Album          string  `json:"album"`
@@ -147,6 +185,7 @@ func API_Handling(Request Response) Result {
 		switch Request.Results[i].Kind {
 		case "song": //Si le résultat est une chanson
 			Result.Results[i].Type = "song"
+			Result.Results[i].Id = Request.Results[i].TrackID
 			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = Request.Results[i].CollectionName
@@ -157,6 +196,7 @@ func API_Handling(Request Response) Result {
 			Result.Results[i].Description = "Not description available for song"
 		case "feature-movie": //Si le résultat est un film
 			Result.Results[i].Type = "movie"
+			Result.Results[i].Id = Request.Results[i].TrackID
 			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = "Not an album"
@@ -167,6 +207,7 @@ func API_Handling(Request Response) Result {
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "ebook": //Si le résultat est un livre
 			Result.Results[i].Type = "ebook"
+			Result.Results[i].Id = Request.Results[i].TrackID
 			Result.Results[i].Title = Request.Results[i].TrackName
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = "Not an album"
@@ -177,6 +218,7 @@ func API_Handling(Request Response) Result {
 			Result.Results[i].Description = Request.Results[i].Description
 		case "tv-episode": //Si le résultat est un épisode de série
 			Result.Results[i].Type = "tv-episode"
+			Result.Results[i].Id = Request.Results[i].TrackID
 			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = Request.Results[i].CollectionName
@@ -187,6 +229,7 @@ func API_Handling(Request Response) Result {
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "music-video": //Si le résultat est une vidéo musicale
 			Result.Results[i].Type = "music-video"
+			Result.Results[i].Id = Request.Results[i].TrackID
 			Result.Results[i].Title = IsExplicit(Request.Results[i].TrackName, Request.Results[i].TrackExplicitness)
 			Result.Results[i].Artist = Request.Results[i].ArtistName
 			Result.Results[i].Album = Request.Results[i].CollectionName
@@ -199,7 +242,7 @@ func API_Handling(Request Response) Result {
 			fmt.Println("Type non reconnu : ", Request.Results[i].Kind)
 		}
 	}
-	fmt.Println("Requete traitée avec", len(Result.Results), "résultats")
+	fmt.Println("RequestHandler | Succesfully handled request")
 	return Result
 }
 
