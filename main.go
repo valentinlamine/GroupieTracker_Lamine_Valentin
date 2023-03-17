@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -68,6 +69,7 @@ type Result struct {
 		ReleaseDate    string  `json:"releaseDate"`
 		PreviewImage   string  `json:"previewImage"`
 		PreviewContent string  `json:"previewContent"`
+		Duration       string  `json:"duration"`
 		Price          float64 `json:"price"`
 		Description    string  `json:"description"`
 	} `json:"results"`
@@ -134,6 +136,15 @@ func RequestByName(search string, media string) Response {
 	var request Response           //Création de la variable temporaire
 	json.Unmarshal(body, &request) //Désérialisation du JSON
 
+	for i := 0; i < len(request.Results); i++ {
+		if request.Results[i].Kind == "song" {
+			if request.Results[i].IsStreamable == false {
+				request.Results = append(request.Results[:i], request.Results[i+1:]...)
+				i--
+			}
+		}
+	}
+
 	if request.ResultCount != 0 {
 		fmt.Println("RequestByName  | Sucessful request with", request.ResultCount, "results of type", request.Results[0].Kind)
 	}
@@ -141,7 +152,7 @@ func RequestByName(search string, media string) Response {
 }
 
 func RequestById(id string) Response {
-	url := "https://itunes.apple.com/lookup?id=" + url.QueryEscape(id) //Création de l'url
+	url := "https://itunes.apple.com/lookup?country=FR&id=" + id //Création de l'url
 
 	req, _ := http.NewRequest("GET", url, nil) //Création de la requête
 
@@ -176,6 +187,7 @@ func RequestHandler(Request Response) Result {
 		ReleaseDate    string  `json:"releaseDate"`
 		PreviewImage   string  `json:"previewImage"`
 		PreviewContent string  `json:"previewContent"`
+		Duration       string  `json:"duration"`
 		Price          float64 `json:"price"`
 		Description    string  `json:"description"`
 	}, len(Request.Results))
@@ -192,6 +204,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = "Not description available for song"
 		case "feature-movie": //Si le résultat est un film
@@ -203,6 +216,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "ebook": //Si le résultat est un livre
@@ -214,6 +228,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].TrackViewURL
+			Result.Results[i].Duration = "Not a song"
 			Result.Results[i].Price = Request.Results[i].Price
 			Result.Results[i].Description = Request.Results[i].Description
 		case "tv-episode": //Si le résultat est un épisode de série
@@ -225,6 +240,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		case "music-video": //Si le résultat est une vidéo musicale
@@ -236,6 +252,7 @@ func RequestHandler(Request Response) Result {
 			Result.Results[i].ReleaseDate = FormatDate(Request.Results[i].ReleaseDate)
 			Result.Results[i].PreviewImage = PreviewUpscaling(Request.Results[i].ArtworkURL100)
 			Result.Results[i].PreviewContent = Request.Results[i].PreviewURL
+			Result.Results[i].Duration = FormatDuration(Request.Results[i].TrackTimeMillis)
 			Result.Results[i].Price = Request.Results[i].TrackPrice
 			Result.Results[i].Description = Request.Results[i].LongDescription
 		default: //Si le résultat n'est pas reconnu
@@ -265,4 +282,15 @@ func IsExplicit(title, explicit string) string {
 	} else {
 		return title
 	}
+}
+
+func FormatDuration(duration int) string {
+	//Input : 240853 in milliseconds
+	//Output : 4:03 in minutes:seconds
+	minutes := duration / 60000
+	seconds := (duration % 60000) / 1000
+	if seconds < 10 {
+		return strconv.Itoa(minutes) + ":0" + strconv.Itoa(seconds)
+	}
+	return strconv.Itoa(minutes) + ":" + strconv.Itoa(seconds)
 }

@@ -69,10 +69,11 @@ content#recherche {
 }
 
 content#resultat {
-    margin: 0 50px;
+    margin: 0 100px;
     align-items: left;
 }
 
+/* mise en forme page principale */
 content > h1 {
     font-size: 32px;
     font-weight: 800;
@@ -128,6 +129,7 @@ table td, th {
 th {
     font-size: 17px;
 }
+/* fin mise en forme page principale */
 
 /* barre de recherche */
 .search_bar {
@@ -186,7 +188,7 @@ input:focus, .search_input:focus {
     justify-content: center;
 }
 
-.item {
+.cards .item {
     background-color: #eeeeee;
     width: 300px;
     height: 400px;
@@ -200,7 +202,7 @@ input:focus, .search_input:focus {
     border: 1px solid #d2d2d7;
 }
 
-.item img {
+.cards .item img {
     position: absolute;
     height: 220px;
     width: 100%;
@@ -209,7 +211,7 @@ input:focus, .search_input:focus {
     border-radius: 20px 20px 0 0;
 }
 
-.bottom-item {
+.cards .bottom-item {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -219,7 +221,7 @@ input:focus, .search_input:focus {
     background-color: #d2d2d7;
 }
 
-.info {
+.cards .info {
     text-overflow: ellipsis;
     width: 100%;
     height: calc(100% - 70px);
@@ -230,33 +232,34 @@ input:focus, .search_input:focus {
     flex-direction: column;
     justify-content: space-between;
 }
-.info p {
+
+.cards .info p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-right: 10px;
 }
 
-.name {
+.cards .name {
     font-size: 24px;
     font-weight: 500;
     line-height: 29px;
 }
 
-.artist {
+.cards .artist {
     font-size: 20px;
     font-weight: lighter;
     line-height: 24px;
     color: #8E8E8E;
 }
 
-.price {
+.cards .price {
     font-size: 22px;
     font-weight: 500;
     line-height: 24px;
 }
 
-.details {
+.cards .details {
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -272,23 +275,79 @@ input:focus, .search_input:focus {
     font-weight: 700;
     cursor: pointer;
 }
-
 /* fin cards */
 
+/* Affichage page unique */
+.album {
+    display: flex;
+    align-items: center;
+    margin: 50px;
+}
 
+.album img {
+    width: 350px;
+    height: 350px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    border: 1px solid #d2d2d7;
+}
 
+.album .info {
+    margin-left: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
+.song {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 50px;
+    background-color: #eeeeee;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
 
+.song .first_line, .song .second_line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
+.song .first_line {
+    margin-bottom: 10px;
+}
 
+.song .name {
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 29px;
+}
 
+.song .price {
+    color: #0071e3;   
+}
 
+.song .duration {
+    color: #8E8E8E;
+}
 
+.song button {
+    border-radius: 50%;
+    padding: 17px;
+    cursor: pointer;
+    color: #fff;
+    background-color: #0071e3;
+    border: none;
+    outline: none;
+}
 
-
-
-
-
+.song button span {
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
 
 /* Footer */
 footer {

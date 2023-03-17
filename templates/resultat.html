@@ -21,20 +21,42 @@
             <a href="/">Top 10</a>
         </nav>
     </header>
+    {{range .Results}}
     <content id="resultat">
-        <h1>{{.Title}}</h1>
-        <h2>{{.Artist}}</h2>
-        <div class="details">
-            <div class="left">
-                <img src="{{.PreviewImage}}" alt="song preview">
+        <audio id="source" src="{{.PreviewContent}}"></audio>
+        <div class="album">
+            <div class="cover">
+                <img src="{{.PreviewImage}}" alt="album cover">
             </div>
-            <div class="right">
+            <div class="info">
+                <h1>{{.Album}}</h1>
+                <h2>{{.Artist}}</h2>
+                <h3>{{.ReleaseDate}}</h3>
+            </div>
+        </div>       
+        <div class="song">
+            <div class="first_line">
+                <p class="name">{{.Title}}</p>
+                <button onclick="PlayPreview()"><span>▶</span></button>
+            </div>
+            <div class="second_line">
                 <p class="price">{{.Price}} $</p>
-                <p class="genre">{{.Album}}</p>
-                <p class="release">{{.ReleaseDate}}</p>
-                <p class="description">{{.PreviewContent}}</p>
+                <p class="duration">{{.Duration}}</p>
             </div>
+        </div>
     </content>
+    {{end}}
+    <script>
+        function PlayPreview() {
+            var element = document.getElementById('source');
+            if (element.paused) {
+                element.play();
+            }
+            else {
+                element.pause();
+            }
+        }
+    </script>
     <footer>
         <p>© 2023 - Itunes API</p>
         <p>Créé par <a href="https://github.com/valentinlamine">Valentin LAMINE</a></p>
