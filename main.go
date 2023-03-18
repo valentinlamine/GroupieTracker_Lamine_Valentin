@@ -32,11 +32,19 @@ func main() {
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" { //Si l'url n'est pas valide
+		ErrorHandler(w, r, 404) //On affiche une erreur 404
+		return
+	}
 	t, _ := template.ParseFiles("templates/index.html")
 	t.Execute(w, nil)
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/search" { //Si l'url n'est pas valide
+		ErrorHandler(w, r, 404) //On affiche une erreur 404
+		return
+	}
 	start := time.Now() //Début du timer
 	fmt.Print("\n")
 	//Définition des templates
@@ -61,6 +69,14 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, nil) //On affiche la page de recherche
 	}
 	fmt.Println("SearchHandler  | Request took", time.Since(start))
+}
+
+func ErrorHandler(w http.ResponseWriter, r *http.Request, status int) {
+	w.WriteHeader(status)
+	if status == 404 { //Si l'erreur est 404
+		t, _ := template.ParseFiles("templates/404.html")
+		t.Execute(w, nil)
+	}
 }
 
 func RequestByName(search string, media string) structure.Response { //Fonction de requête par nom
