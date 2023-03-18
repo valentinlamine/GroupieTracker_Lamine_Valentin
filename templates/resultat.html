@@ -65,6 +65,10 @@
                 <p class="duration">{{.Duration}}</p>
             </div>
         </div>
+        <div class="description" id="movie">
+            <h1>Description :</h1>
+            <p>{{.Description}}</p>
+        </div>
         {{else if eq .Type "tv-episode"}}
         <div class="film">
             <div class="cover">
@@ -85,25 +89,53 @@
                 <p class="duration">{{.Duration}}</p>
             </div>
         </div>
+        <div class="description" id="movie">
+            <h1>Description :</h1>
+            <p>{{.Description}}</p>
+        </div>
         {{else if eq .Type "ebook"}}
-        <div class="album">
-            <div class="cover">
-                <img src="{{.PreviewImage}}" alt="album cover" onclick="window.location.href='{{.PreviewContent}}'">
+        <script>
+            function ResizeCover() {
+                var cover = document.getElementById("book_cover");
+                var description = document.getElementById("book_description");
+                cover.style.maxHeight = description.offsetHeight + "px";
+            }
+            window.onload = ResizeCover;
+            window.onresize = ResizeCover;
+        </script>
+        <div class="album" id="book">
+            <div class="cover" id="book_cover">
+                <div class="book_cover">
+                    <img src="{{.PreviewImage}}" alt="book cover" onclick="window.location.href='{{.PreviewContent}}'">
+                </div>
+                <div class="info">
+                    <h1>{{.Title}}</h1>
+                    <h2>{{.Artist}}</h2>
+                    <h3>{{.ReleaseDate}}</h3>
+                </div>
             </div>
-            <div class="info">
-                <h1>{{.Album}}</h1>
-                <h2>{{.Artist}}</h2>
-                <h3>{{.ReleaseDate}}</h3>
+            <div class="description" id="book_description">
+                <h1>Description :</h1>
+                <script>
+                    var description = "{{.Description}}";
+                    document.write(DecodeHtml(description));
+                    
+                    function DecodeHtml(html) {
+                        var txt = document.createElement("textarea");
+                        txt.innerHTML = html;
+                        return txt.value;
+                    }
+                </script>
             </div>
         </div>       
         <div class="content">
             <div class="first_line">
                 <p class="name">{{.Title}}</p>
-                <button onclick="window.location.href='{{.PreviewContent}}'"><span>▶</span></button>
+                <button id="book" onclick="window.location.href='{{.PreviewContent}}'">Voir plus de détails</button>
             </div>
             <div class="second_line">
                 <p class="price">{{.Price}} $</p>
-                <p class="duration">{{.Duration}}</p>
+                <p class="duration">Ce contenu n'a pas du durée défini</p> <!--C'est pas un beug ici-->
             </div>
         </div>
         {{else if eq .Type "music-video"}}
