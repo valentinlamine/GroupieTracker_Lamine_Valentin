@@ -22,6 +22,9 @@ func main() {
 	//Chargement des ASSETS
 	assets := http.FileServer(http.Dir("assets"))
 	http.Handle("/assets/", http.StripPrefix("/assets/", assets))
+	//Chargement des fichiers JS
+	js := http.FileServer(http.Dir("scripts"))
+	http.Handle("/scripts/", http.StripPrefix("/scripts/", js))
 	//Gestion des templates
 	http.HandleFunc("/", IndexHandler)
 	http.HandleFunc("/search", SearchHandler)

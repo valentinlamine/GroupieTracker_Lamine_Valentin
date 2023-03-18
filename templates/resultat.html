@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -18,12 +18,12 @@
         <nav>
             <a href="/">Présentation</a>
             <a href="/search">Recherche</a>
-            <a href="/">Top 10</a>
         </nav>
     </header>
     {{range .Results}}
     <content id="resultat">
         {{if eq .Type "song"}}
+        <script src="/scripts/play.js"></script>
         <audio id="source" src="{{.PreviewContent}}"></audio>
         <div class="album">
             <div class="cover">
@@ -45,7 +45,9 @@
                 <p class="duration">{{.Duration}}</p>
             </div>
         </div>
-        {{else if eq .Type "movie"}}
+        
+        {{else if or (eq .Type "movie") (eq .Type "tv-episode") (eq .Type "music-video")}}
+        <script src="/scripts/play.js"></script>
         <div class="film">
             <div class="cover">
                 <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
@@ -65,44 +67,15 @@
                 <p class="duration">{{.Duration}}</p>
             </div>
         </div>
-        <div class="description" id="movie">
-            <h1>Description :</h1>
-            <p>{{.Description}}</p>
-        </div>
-        {{else if eq .Type "tv-episode"}}
-        <div class="film">
-            <div class="cover">
-                <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
+        {{if ne .Type "music-video"}}
+            <div class="description" id="movie">
+                <h1>Description :</h1>
+                <p>{{.Description}}</p>
             </div>
-        </div>       
-        <div class="content">
-            <div class="first_line">
-                <p class="name">{{.Title}}</p>
-                <button onclick="PlayPreview()"><span>▶</span></button>
-            </div>
-            <div class="second_line">
-                <p class="artist">{{.Artist}}</p>
-                <p class="ReleaseDate">{{.ReleaseDate}}</p>
-            </div>
-            <div class="third_line">
-                <p class="price">{{.Price}} $</p>
-                <p class="duration">{{.Duration}}</p>
-            </div>
-        </div>
-        <div class="description" id="movie">
-            <h1>Description :</h1>
-            <p>{{.Description}}</p>
-        </div>
+        {{end}} 
+        
         {{else if eq .Type "ebook"}}
-        <script>
-            function ResizeCover() {
-                var cover = document.getElementById("book_cover");
-                var description = document.getElementById("book_description");
-                cover.style.maxHeight = description.offsetHeight + "px";
-            }
-            window.onload = ResizeCover;
-            window.onresize = ResizeCover;
-        </script>
+        <script src="/scripts/resize.js"></script>
         <div class="album" id="book">
             <div class="cover" id="book_cover">
                 <div class="book_cover">
@@ -119,7 +92,7 @@
                 <script>
                     var description = "{{.Description}}";
                     document.write(DecodeHtml(description));
-                    
+
                     function DecodeHtml(html) {
                         var txt = document.createElement("textarea");
                         txt.innerHTML = html;
@@ -135,43 +108,19 @@
             </div>
             <div class="second_line">
                 <p class="price">{{.Price}} $</p>
-                <p class="duration">Ce contenu n'a pas du durée défini</p> <!--C'est pas un beug ici-->
-            </div>
-        </div>
-        {{else if eq .Type "music-video"}}
-        <div class="film">
-            <div class="cover">
-                <video id="source" src="{{.PreviewContent}}" poster="{{.PreviewImage}}" onclick="PlayPreview()"></video>
-            </div>
-        </div>       
-        <div class="content">
-            <div class="first_line">
-                <p class="name">{{.Title}}</p>
-                <button onclick="PlayPreview()"><span>▶</span></button>
-            </div>
-            <div class="second_line">
-                <p class="artist">{{.Artist}}</p>
-                <p class="ReleaseDate">{{.ReleaseDate}}</p>
-            </div>
-            <div class="third_line">
-                <p class="price">{{.Price}} $</p>
-                <p class="duration">{{.Duration}}</p>
+                <p class="duration">Ce contenu n'a pas du durée défini</p> <!--C'est pas un beug ici le texte reste volontairement-->
             </div>
         </div>
         {{end}}
     </content>
     {{end}}
-    <script>
-        function PlayPreview() {
-            var element = document.getElementById('source');
-            if (element.paused) {
-                element.play();
-            }
-            else {
-                element.pause();
-            }
-        }
-    </script>
+    {{if eq .ResultCount 0}}
+    <content id="resultat">
+        <h1>Aucun résultat trouvé</h1>
+        <h2>C'est pas bien de bidouiller dans l'url</h2>
+        <img src="/assets/images/default-image.jpg" alt="default image for no results" width="50%" height="50%">
+    </content>
+    {{end}}
     <footer>
         <p>© 2023 - Itunes API</p>
         <p>Créé par <a href="https://github.com/valentinlamine">Valentin LAMINE</a></p>
