@@ -347,24 +347,19 @@ input:focus, .search_input:focus {
 }
 
 .album h1 {
-    font-size: 48px;
+    font-size: 30px;
     font-weight: 500;
-    line-height: 58px;
-    margin-bottom: 10px;
+    line-height: 30px;
 }
-
 .album h2 {
-    font-size: 24px;
-    font-weight: 500;
-    line-height: 29px;
-    margin-bottom: 10px;
-}
-
-.album h3 {
     font-size: 20px;
     font-weight: 500;
-    line-height: 24px;
-    margin-bottom: 10px;
+    line-height: 20px;
+}
+.album h3 {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 16px;
 }
 
 .content {
@@ -550,21 +545,6 @@ footer a {
 
 /* Media queries */
 @media screen and (max-width: 1200px) {
-    .album h1 {
-        font-size: 30px;
-        font-weight: 500;
-        line-height: 30px;
-    }
-    .album h2 {
-        font-size: 20px;
-        font-weight: 500;
-        line-height: 20px;
-    }
-    .album h3 {
-        font-size: 16px;
-        font-weight: 500;
-        line-height: 16px;
-    }
     .album#book {
         margin: 0;
     }
