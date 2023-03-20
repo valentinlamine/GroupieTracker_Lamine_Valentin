@@ -50,7 +50,10 @@ type Response struct {
 }
 
 type Result struct {
-	ResultCount int `json:"resultCount"`
+	Success     bool   `json:"success"`
+	ResultCount int    `json:"resultCount"`
+	Request     string `json:"request"`
+	RequestType string `json:"type"`
 	Results     []struct {
 		Type           string  `json:"type"`
 		Id             int     `json:"id"`

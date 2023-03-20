@@ -55,7 +55,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.RequestURI() == "/search" { //Si l'url est /search
 		if r.Method == "POST" { //Si on a effectué une recherche
 			request := RequestByName(r.FormValue("search"), r.FormValue("type"))
-			result := RequestHandler(request)
+			result := RequestHandler(request, r.FormValue("search"), r.FormValue("type"))
 			t.Execute(w, result) //On affiche les résultats
 		} else { //Si on a pas effectué de recherche
 			t.Execute(w, nil) //On affiche la page de recherche
@@ -63,7 +63,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	} else if reg.MatchString(r.URL.RequestURI()) { //Si on accède à un résultat
 		id := reg.FindStringSubmatch(r.URL.RequestURI())[1] //On récupère l'id
 		request := RequestById(id)                          //On récupère les informations du résultat
-		result := RequestHandler(request)                   //On traite les informations
+		result := RequestHandler(request, "", "")           //On traite les informations
 		t2.Execute(w, result)                               //On affiche le résultat
 	} else { //Si l'url n'est pas valide
 		t.Execute(w, nil) //On affiche la page de recherche
@@ -96,7 +96,7 @@ func RequestByName(search string, media string) structure.Response { //Fonction 
 
 	for i := 0; i < len(request.Results); i++ { //Boucle de traitement des résultats
 		if request.Results[i].Kind == "song" { //Si le résultat est une chanson
-			if request.Results[i].IsStreamable == false { //Si la chanson n'est pas streamable
+			if !request.Results[i].IsStreamable { //Si la chanson n'est pas streamable
 				request.Results = append(request.Results[:i], request.Results[i+1:]...) //On supprime le résultat
 				i--
 			}
@@ -130,10 +130,13 @@ func RequestById(id string) structure.Response { //Fonction de requête par id
 	return request //Retourne la variable temporaire
 }
 
-func RequestHandler(Request structure.Response) structure.Result {
+func RequestHandler(Request structure.Response, search string, media string) structure.Result { //Fonction de traitement des requêtes
 	//Création de la structure de retour
 	var Result structure.Result
+	Result.Success = true
 	Result.ResultCount = Request.ResultCount //On copie le nombre de résultats
+	Result.Request = search                  //On copie la recherche
+	Result.RequestType = media               //On copie le type de recherche
 	Result.Results = make([]struct {         //On crée la liste des résultats
 		Type           string  `json:"type"`
 		Id             int     `json:"id"`

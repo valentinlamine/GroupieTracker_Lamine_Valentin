@@ -22,13 +22,43 @@
     </header>
     <content id="recherche">
         <form action="/search" class="search_bar" method="post">
+            {{if .Success}}
+            <input type="text" autofocus class="search_input" name="search" placeholder="Rechercher un artiste, un album, une chanson..." value="{{.Request}}">
+            <select name="type" id="type" class="search_select">
+                {{if eq .RequestType "music"}}
+                <option value="music" selected>Musique</option>
+                <option value="movie">Film</option>
+                <option value="tvShow">Série TV</option>
+                <option value="ebook">Livre</option>
+                {{end}}
+                {{if eq .RequestType "movie"}}
+                <option value="music">Musique</option>
+                <option value="movie" selected>Film</option>
+                <option value="tvShow">Série TV</option>
+                <option value="ebook">Livre</option>
+                {{end}}
+                {{if eq .RequestType "tvShow"}}
+                <option value="music">Musique</option>
+                <option value="movie">Film</option>
+                <option value="tvShow" selected>Série TV</option>
+                <option value="ebook">Livre</option>
+                {{end}}
+                {{if eq .RequestType "ebook"}}
+                <option value="music">Musique</option>
+                <option value="movie">Film</option>
+                <option value="tvShow">Série TV</option>
+                <option value="ebook" selected>Livre</option>
+                {{end}}
+            </select>
+            {{else}}
             <input type="text" autofocus class="search_input" name="search" placeholder="Rechercher un artiste, un album, une chanson...">
             <select name="type" id="type" class="search_select">
-                <option value="music">Musique</option>
+                <option value="music" selected>Musique</option>
                 <option value="movie">Film</option>
                 <option value="tvShow">Série TV</option>
                 <option value="ebook">Livre</option>
             </select>
+            {{end}}
             <div class="search_icons">
                 <img src="/assets/images/rod.svg" alt="rod" class="rod">
                 <button type="submit" class="search_button">
